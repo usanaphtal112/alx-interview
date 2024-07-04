@@ -1,51 +1,61 @@
-#!/usr/bin/env python3
-"""
-Module: Lockbox Unlocker
-"""
-from typing import List
-
-"""
-Module: Lockbox Unlocker
-
-This module provides a function to determine if all boxes can be unlocked
-starting from the first box (boxes[0]).
-
-Functions:
-- canUnlockAll(boxes): Determine if all boxes can be unlocked.
-
-"""
+#!/usr/bin/python3
+"""Solves the lock boxes puzzle """
 
 
-def canUnlockAll(boxes: List[List[int]]) -> bool:
-    """
-    Determine if all boxes can be unlocked starting from the first box (boxes[0]).
-
+def look_next_opened_box(opened_boxes):
+    """Looks for the next opened box
     Args:
-    boxes (List[List[int]]): A list of lists where each inner list contains
-    integers representing keys to other boxes.
-
+        opened_boxes (dict): Dictionary which contains boxes already opened
     Returns:
-    bool: True if all boxes can be opened starting from the first box, False otherwise.
-
-    Notes:
-    - A key with the same number as a box opens that box.
-    - The function assumes all keys will be positive integers.
-    - There can be keys that do not have corresponding boxes.
-
+        list: List with the keys contained in the opened box
     """
-    if not boxes:
-        return False
+    for index, box in opened_boxes.items():
+        if box.get("status") == "opened":
+            box["status"] = "opened/checked"
+            return box.get("keys")
+    return None
 
-    n = len(boxes)
-    visited = set()
-    queue = [0]
 
-    while queue:
-        current_box = queue.pop(0)
-        if current_box not in visited:
-            visited.add(current_box)
-            for key in boxes[current_box]:
-                if key < n and key not in visited:
-                    queue.append(key)
+def canUnlockAll(boxes):
+    """Check if all boxes can be opened
+    Args:
+        boxes (list): List which contain all the boxes with the keys
+    Returns:
+        bool: True if all boxes can be opened, otherwise, False
+    """
+    if len(boxes) <= 1 or boxes == [[]]:
+        return True
 
-    return len(visited) == n
+    aux = {}
+    while True:
+        if len(aux) == 0:
+            aux[0] = {
+                "status": "opened",
+                "keys": boxes[0],
+            }
+        keys = look_next_opened_box(aux)
+        if keys:
+            for key in keys:
+                try:
+                    if aux.get(key) and aux.get(key).get("status") == "opened/checked":
+                        continue
+                    aux[key] = {"status": "opened", "keys": boxes[key]}
+                except (KeyError, IndexError):
+                    continue
+        elif "opened" in [box.get("status") for box in aux.values()]:
+            continue
+        elif len(aux) == len(boxes):
+            break
+        else:
+            return False
+
+    return len(aux) == len(boxes)
+
+
+def main():
+    """Entry point"""
+    canUnlockAll([[]])
+
+
+if __name__ == "__main__":
+    main()
