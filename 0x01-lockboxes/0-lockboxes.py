@@ -37,9 +37,9 @@ def canUnlockAll(boxes):
         if keys:
             for key in keys:
                 try:
-                    if aux.get(key):
-                        aux.get(key).get("status") == "opened/checked":
-                            continue
+                    if aux.get(key) and 
+                    aux.get(key).get("status") == "opened/checked":
+                        continue
                     aux[key] = {"status": "opened", "keys": boxes[key]}
                 except (KeyError, IndexError):
                     continue
